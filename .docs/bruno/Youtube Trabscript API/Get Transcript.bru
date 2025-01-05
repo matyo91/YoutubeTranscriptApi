@@ -1,0 +1,17 @@
+meta {
+  name: Get Transcript
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://127.0.0.1:8000/transcript?video_id=CbpSi2IubzE&language=fr
+  body: none
+  auth: none
+}
+
+query {
+  video_id: CbpSi2IubzE
+  language: fr
+  ~format: text
+}
