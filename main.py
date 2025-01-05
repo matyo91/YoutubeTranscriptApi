@@ -1,10 +1,15 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Security, Depends
+from fastapi.security.api_key import APIKeyHeader
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled
 from youtube_transcript_api.formatters import JSONFormatter, TextFormatter, WebVTTFormatter, SRTFormatter
 from enum import Enum
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 class TranscriptFormat(str, Enum):
     JSON = "json"
@@ -34,6 +39,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# API Key configuration
+API_KEY = os.getenv("API_KEY")
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+async def get_api_key(api_key_header: str = Security(api_key_header)):
+    if not API_KEY:
+        return None
+    if api_key_header == API_KEY:
+        return api_key_header
+    raise HTTPException(
+        status_code=401,
+        detail="Invalid API Key"
+    )
+
 @app.get("/")
 def read_root():
     return {
@@ -47,7 +66,12 @@ def read_root():
     }
 
 @app.get("/transcript")
-def get_transcript(video_id: str, language: str = "en", format: TranscriptFormat = TranscriptFormat.JSON):
+async def get_transcript(
+    video_id: str, 
+    language: str = "en", 
+    format: TranscriptFormat = TranscriptFormat.JSON,
+    api_key: str = Depends(get_api_key)
+):
     """
     Fetch transcript for a given YouTube video ID and language.
     Available formats: json, text, webvtt, srt
@@ -85,7 +109,10 @@ def get_transcript(video_id: str, language: str = "en", format: TranscriptFormat
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/transcripts")
-def list_transcripts(video_id: str):
+async def list_transcripts(
+    video_id: str,
+    api_key: str = Depends(get_api_key)
+):
     """
     List all available transcripts for a given YouTube video ID.
     """
