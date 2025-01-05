@@ -20,7 +20,7 @@ class TranscriptFormat(str, Enum):
 app = FastAPI(
     title="YouTube Transcript API",
     description="Fetch video transcripts via an API",
-    version="1.0",
+    version="0.1.0",
     contact={
         "name": "API Support",
         "url": "https://github.com/yoanbernabeu/YoutubeTranscriptApi"
