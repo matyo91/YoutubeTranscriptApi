@@ -13,7 +13,7 @@ A REST API wrapper around [youtube-transcript-api](https://pypi.org/project/yout
 
 One-liner to run with Docker:
 ```bash
-docker run -p 8000:8000 $(docker build -q .)
+docker run -p 8000:8000 yoanbernabeu/youtubetranscriptapi:latest
 ```
 
 ## Installation
@@ -69,7 +69,7 @@ curl -H "X-API-Key: your_secret_key_here" "http://localhost:8000/transcript?vide
 
 ## Environment Variables
 
-- `API_KEY`: Optional. If set, will require this key for protected endpoints
+- `API_KEY`: Optional. If set, will require this key for protected endpoints.
 
 ## License
 
