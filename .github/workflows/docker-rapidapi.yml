@@ -1,15 +1,14 @@
 name: Build and Push RapidAPI Docker Image
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - "main"
     tags:
       - "*.*.*"
-    paths-ignore:
-      - '**.md'
-      - '.github/**'
+  pull_request:
+    branches:
+      - "main"
 
 jobs:
   docker:
