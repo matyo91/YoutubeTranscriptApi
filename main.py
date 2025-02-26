@@ -79,15 +79,32 @@ async def get_transcript(
     try:
         transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
         
-        formatters = {
-            TranscriptFormat.JSON: JSONFormatter(),
-            TranscriptFormat.TEXT: TextFormatter(),
-            TranscriptFormat.WEBVTT: WebVTTFormatter(),
-            TranscriptFormat.SRT: SRTFormatter()
-        }
-        
-        formatter = formatters[format]
-        formatted_transcript = formatter.format_transcript(transcript)
+        # If format is TEXT, process transcript to include word-level timestamps
+        if format == TranscriptFormat.TEXT:
+            word_level_transcript = []
+            for segment in transcript:
+                words = segment['text'].split()
+                # Calculate approximate time per word
+                segment_duration = segment.get('duration', 0)
+                time_per_word = segment_duration / len(words) if words else 0
+                start_time = segment['start']
+                
+                # Add timestamp for each word
+                for i, word in enumerate(words):
+                    word_time = start_time + (i * time_per_word)
+                    formatted_time = f"[{int(word_time//60):02d}:{int(word_time%60):02d}.{int((word_time%1)*1000):03d}]"
+                    word_level_transcript.append(f"{formatted_time} {word}")
+            
+            formatted_transcript = "\n".join(word_level_transcript)
+        else:
+            formatters = {
+                TranscriptFormat.JSON: JSONFormatter(),
+                TranscriptFormat.TEXT: TextFormatter(),
+                TranscriptFormat.WEBVTT: WebVTTFormatter(),
+                TranscriptFormat.SRT: SRTFormatter()
+            }
+            formatter = formatters[format]
+            formatted_transcript = formatter.format_transcript(transcript)
         
         content_types = {
             TranscriptFormat.JSON: "application/json",
