@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8050:8000"
     environment:
       - API_KEY=${API_KEY:-}  # Optional: uses API_KEY value if defined, empty otherwise
     volumes:
